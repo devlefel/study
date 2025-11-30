@@ -45,43 +45,61 @@ func (s *StackMin) Min() int {
 
 func main() {
 	// Test Cases
-	stack := NewStackMin()
-	stack.Push(5)
-	stack.Push(6)
-	stack.Push(3)
-	stack.Push(7)
-	
-	// Min should be 3
-	min1 := stack.Min()
-	stack.Pop() // Pop 7
-	min2 := stack.Min() // Still 3
-	stack.Pop() // Pop 3
-	min3 := stack.Min() // Now 5
-	
-	status := "FAIL"
-	if min1 == 3 && min2 == 3 && min3 == 5 {
-		status = "PASS"
+	type testCase struct {
+		name     string
+		ops      func() []int
+		expected []int
 	}
-	fmt.Printf("Test Case 1: %s (Mins: %d, %d, %d)\n", status, min1, min2, min3)
+
+	testCases := []testCase{
+		{
+			"Push/Pop/Min Sequence",
+			func() []int {
+				stack := NewStackMin()
+				stack.Push(5)
+				stack.Push(6)
+				stack.Push(3)
+				stack.Push(7)
+				m1 := stack.Min()
+				stack.Pop()
+				m2 := stack.Min()
+				stack.Pop()
+				m3 := stack.Min()
+				return []int{m1, m2, m3}
+			},
+			[]int{3, 3, 5},
+		},
+	}
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	largeStack := NewStackMin()
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	for i := 1000; i > 0; i-- {
-		largeStack.Push(i) // Pushing decreasing values updates min often
+
+	for _, tc := range testCases {
+		result := tc.ops()
+		status := "FAIL"
+		if len(result) == len(tc.expected) {
+			match := true
+			for i := range result {
+				if result[i] != tc.expected[i] {
+					match = false
+					break
+				}
+			}
+			if match {
+				status = "PASS"
+			}
+		}
+		fmt.Printf("%s: '%s' -> '%v' (Expected: '%v')\n", status, tc.name, result, tc.expected)
 	}
-	largeStack.Min()
-	
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operations: 1000 Push + 1 Min\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

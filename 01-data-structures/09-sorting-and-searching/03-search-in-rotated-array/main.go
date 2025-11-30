@@ -56,45 +56,36 @@ func search(a []int, left, right, x int) int {
 //   Memory: Low < 1KB,   Medium < 1KB,   High > 1KB
 
 func main() {
-	arr := []int{15, 16, 19, 20, 25, 1, 3, 4, 5, 7, 10, 14}
-	target := 5
-	expected := 8
-	
-	result := SearchInRotatedArray(arr, target)
-	
-	status := "FAIL"
-	if result == expected {
-		status = "PASS"
+	// Test Cases
+	testCases := []struct {
+		input    []int
+		target   int
+		expected int
+	}{
+		{[]int{15, 16, 19, 20, 25, 1, 3, 4, 5, 7, 10, 14}, 5, 8},
 	}
-	fmt.Printf("Test Case 1: %s (Index: %d)\n", status, result)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	// Create large rotated array
-	count := 1000
-	largeInput := make([]int, count)
-	// Rotate at 500
-	for i := 0; i < count; i++ {
-		val := i + 500
-		if val >= count {
-			val -= count
-		}
-		largeInput[i] = val
-	}
-	// Target is 499 (which is at index 999)
-	targetVal := 499
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	SearchInRotatedArray(largeInput, targetVal)
-	
+
+	for _, tc := range testCases {
+		result := SearchInRotatedArray(tc.input, tc.target)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: Target %d -> Index %d (Expected: %d)\n", status, tc.target, result, tc.expected)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Input Size: 1000\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

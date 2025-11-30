@@ -4,6 +4,8 @@ package main
 import (
 	"fmt"
 	"runtime"
+	"sort"
+	"strings"
 	"time"
 )
 
@@ -23,7 +25,7 @@ func CheckPermutation(s1, s2 string) bool {
 func sortString(w string) string {
 	s := strings.Split(w, "")
 	sort.Strings(s)
-	return strings.Join(s, "")
+	return strings.Join(s,"")
 }
 
 // Expected Time Complexity: O(N)
@@ -45,13 +47,18 @@ func main() {
 		{"dog", "god", true},
 	}
 
+	fmt.Println("\n--- Profiling ---")
+	var m1, m2 runtime.MemStats
+	runtime.ReadMemStats(&m1)
+	start := time.Now()
+	
 	for _, tc := range testCases {
 		result := CheckPermutation(tc.s1, tc.s2)
 		status := "FAIL"
 		if result == tc.expected {
 			status = "PASS"
 		}
-		fmt.Printf("%s: %s, %s (Expected: %v, Got: %v)\n", status, tc.s1, tc.s2, tc.expected, result)
+		fmt.Printf("%s: '%s', '%s' -> '%v' (Expected: '%v')\n", status, tc.s1, tc.s2, result, tc.expected)
 	}
 
 	// Profiling
@@ -68,7 +75,7 @@ func main() {
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
 	
-	fmt.Printf("Input Length: %d\n", len(s1))
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

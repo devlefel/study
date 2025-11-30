@@ -26,9 +26,40 @@ A common technique is to use two pointers iterating at different speeds.
 - **Finding the Middle**: Fast pointer moves 2 steps, slow pointer moves 1 step. When fast reaches the end, slow is at the middle.
 - **Cycle Detection**: If fast and slow collide, there is a cycle.
 
+**Go Implementation**:
+
+```go
+func hasCycle(head *Node) bool {
+    if head == nil {
+        return false
+    }
+    slow, fast := head, head
+    for fast != nil && fast.Next != nil {
+        slow = slow.Next
+        fast = fast.Next.Next
+        if slow == fast {
+            return true
+        }
+    }
+    return false
+}
+```
+
 ## Recursive Problems
 
 Many linked list problems can be solved recursively.
 
 - $O(N)$ space for the stack.
 - Useful for printing in reverse or processing from the end.
+
+**Go Implementation**:
+
+```go
+func printReverse(head *Node) {
+    if head == nil {
+        return
+    }
+    printReverse(head.Next)
+    fmt.Println(head.Data)
+}
+```

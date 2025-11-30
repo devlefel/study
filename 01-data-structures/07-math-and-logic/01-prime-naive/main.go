@@ -25,7 +25,8 @@ func IsPrime(n int) bool {
 //   Memory: Low < 1KB,   Medium < 1KB,   High > 1KB
 
 func main() {
-	tests := []struct {
+	// Test Cases
+	testCases := []struct {
 		input    int
 		expected bool
 	}{
@@ -38,29 +39,27 @@ func main() {
 		{1, false},
 	}
 
-	for _, test := range tests {
-		result := IsPrime(test.input)
-		if result == test.expected {
-			fmt.Printf("PASS: IsPrime(%d) = %v\n", test.input, result)
-		} else {
-			fmt.Printf("FAIL: IsPrime(%d) = %v, expected %v\n", test.input, result, test.expected)
-		}
-	}
-
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	// Check a large prime
-	IsPrime(1000000007)
-	
+
+	for _, tc := range testCases {
+		result := IsPrime(tc.input)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: %d -> %v (Expected: %v)\n", status, tc.input, result, tc.expected)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operation: IsPrime(1000000007)\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

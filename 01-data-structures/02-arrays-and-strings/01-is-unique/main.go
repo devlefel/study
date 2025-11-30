@@ -37,13 +37,19 @@ func main() {
 		{"padle", true},
 	}
 
+	fmt.Println("\n--- Profiling ---")
+
+	var m1, m2 runtime.MemStats
+	runtime.ReadMemStats(&m1)
+	start := time.Now()
+	
 	for _, tc := range testCases {
 		result := IsUnique(tc.input)
 		status := "FAIL"
 		if result == tc.expected {
 			status = "PASS"
 		}
-		fmt.Printf("%s: %s (Expected: %v, Got: %v)\n", status, tc.input, tc.expected, result)
+		fmt.Printf("%s: '%s' -> '%v' (Expected: '%v')\n", status, tc.input, result, tc.expected)
 	}
 
 	// Profiling
@@ -59,7 +65,7 @@ func main() {
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
 	
-	fmt.Printf("Input Length: %d\n", len(largeInput))
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

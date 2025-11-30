@@ -16,7 +16,7 @@ The most efficient way to solve this (assuming ASCII character set) is to use a 
     - Set `seen[char]` to `true`.
 4.  **Return True**: If loop finishes without collision, return `true`.
 
-![Is Unique Diagram](../../../02-system-design/images/is_unique.png)
+![Is Unique Diagram](./is_unique.png)
 
 ## Code Snippet
 

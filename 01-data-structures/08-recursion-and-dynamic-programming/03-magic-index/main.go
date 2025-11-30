@@ -25,7 +25,8 @@ func MagicIndex(arr []int) int {
 //   Memory: Low < 1KB,   Medium < 1KB,   High > 1KB
 
 func main() {
-	tests := []struct {
+	// Test Cases
+	testCases := []struct {
 		input    []int
 		expected int
 	}{
@@ -34,35 +35,27 @@ func main() {
 		{[]int{10, 11, 12}, -1},
 	}
 
-	for _, test := range tests {
-		result := MagicIndex(test.input)
-		if result == test.expected {
-			fmt.Printf("PASS: MagicIndex(%v) = %d\n", test.input, result)
-		} else {
-			fmt.Printf("FAIL: MagicIndex(%v) = %d, expected %d\n", test.input, result, test.expected)
-		}
-	}
-
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	// Create array where A[i] = i only at 999
-	largeInput := make([]int, 1000)
-	for i := 0; i < 1000; i++ {
-		largeInput[i] = i - 1 // A[i] = i-1, so A[i] < i
-	}
-	largeInput[999] = 999 // Magic index
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	MagicIndex(largeInput)
-	
+
+	for _, tc := range testCases {
+		result := MagicIndex(tc.input)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: %v -> %d (Expected: %d)\n", status, tc.input, result, tc.expected)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Input Size: 1000\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

@@ -23,32 +23,34 @@ func FlipBitToWin(num int) int {
 
 func main() {
 	// Test Cases
-	// 1775 (11011101111) -> Flip 0 at index 3 -> 11011111111 -> Length 8
-	num := 1775
-	result := FlipBitToWin(num)
-	expected := 8
-	
-	status := "FAIL"
-	if result == expected {
-		status = "PASS"
+	testCases := []struct {
+		input    int
+		expected int
+	}{
+		{1775, 8},
 	}
-	fmt.Printf("Test Case 1: %s (Got %d, Expected %d)\n", status, result, expected)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	for k := 0; k < 1000000; k++ {
-		FlipBitToWin(1775)
+
+	for _, tc := range testCases {
+		result := FlipBitToWin(tc.input)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: %d (%b) -> %d (Expected: %d)\n", status, tc.input, tc.input, result, tc.expected)
 	}
-	
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operations: 1,000,000 Flips\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

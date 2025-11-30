@@ -51,45 +51,57 @@ func (ts *ThreeStacks) IsEmpty(stackNum int) bool {
 
 func main() {
 	// Test Cases
-	stack := NewThreeStacks(3)
-	
-	// Push to stack 0
-	stack.Push(0, 10)
-	stack.Push(0, 11)
-	
-	// Push to stack 1
-	stack.Push(1, 20)
-	
-	// Pop
-	val1, _ := stack.Pop(0) // 11
-	val2, _ := stack.Pop(1) // 20
-	
-	status := "FAIL"
-	if val1 == 11 && val2 == 20 {
-		status = "PASS"
+	type testCase struct {
+		name     string
+		ops      func() ([]int, error)
+		expected []int
 	}
-	fmt.Printf("Test Case 1: %s (Got %d, %d)\n", status, val1, val2)
+
+	testCases := []testCase{
+		{
+			"Push/Pop Multi Stacks",
+			func() ([]int, error) {
+				stack := NewThreeStacks(3)
+				stack.Push(0, 10)
+				stack.Push(0, 11)
+				stack.Push(1, 20)
+				val1, _ := stack.Pop(0)
+				val2, _ := stack.Pop(1)
+				return []int{val1, val2}, nil
+			},
+			[]int{11, 20},
+		},
+	}
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	largeStack := NewThreeStacks(1000)
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	for i := 0; i < 1000; i++ {
-		largeStack.Push(0, i)
+
+	for _, tc := range testCases {
+		result, _ := tc.ops()
+		status := "FAIL"
+		if len(result) == len(tc.expected) {
+			match := true
+			for i := range result {
+				if result[i] != tc.expected[i] {
+					match = false
+					break
+				}
+			}
+			if match {
+				status = "PASS"
+			}
+		}
+		fmt.Printf("%s: '%s' -> '%v' (Expected: '%v')\n", status, tc.name, result, tc.expected)
 	}
-	for i := 0; i < 1000; i++ {
-		largeStack.Pop(0)
-	}
-	
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operations: 1000 Push + 1000 Pop\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

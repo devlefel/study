@@ -43,41 +43,36 @@ func getHeight(root *TreeNode) int {
 
 func main() {
 	// Test Cases
-	// Input: [1, 2, 3, 4, 5, 6, 7]
-	// Expected: Balanced Tree
-	//       4
-	//     /   \
-	//    2     6
-	//   / \   / \
-	//  1   3 5   7
-	input := []int{1, 2, 3, 4, 5, 6, 7}
-	root := MinimalTree(input)
-	
-	// Verify height is minimal (ceil(log2(7+1)) = 3)
-	status := "FAIL"
-	if root != nil && root.Val == 4 && root.Left.Val == 2 && root.Right.Val == 6 {
-		status = "PASS"
+	testCases := []struct {
+		input    []int
+		expectedHeight int
+	}{
+		{[]int{1, 2, 3, 4, 5, 6, 7}, 3},
+		{[]int{1, 2, 3}, 2},
 	}
-	fmt.Printf("Test Case 1: %s (Root: %d)\n", status, root.Val)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	largeInput := make([]int, 1000)
-	for i := 0; i < 1000; i++ {
-		largeInput[i] = i
-	}
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	MinimalTree(largeInput)
-	
+
+	for _, tc := range testCases {
+		root := MinimalTree(tc.input)
+		height := getHeight(root)
+		
+		status := "FAIL"
+		if height == tc.expectedHeight {
+			status = "PASS"
+		}
+		fmt.Printf("%s: Input Len %d -> Height %d (Expected: %d)\n", status, len(tc.input), height, tc.expectedHeight)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Input Size: 1000\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

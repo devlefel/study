@@ -27,37 +27,34 @@ func Insertion(n int, m int, i int, j int) int {
 
 func main() {
 	// Test Cases
-	// N = 10000000000 (1024), M = 10011 (19), i = 2, j = 6
-	// Expected: 10001001100 (1100)
-	N := 1024
-	M := 19
-	i := 2
-	j := 6
-	
-	result := Insertion(N, M, i, j)
-	expected := 1100
-	
-	status := "FAIL"
-	if result == expected {
-		status = "PASS"
+	testCases := []struct {
+		n, m, i, j int
+		expected   int
+	}{
+		{1024, 19, 2, 6, 1100},
 	}
-	fmt.Printf("Test Case 1: %s (Got %b, Expected %b)\n", status, result, expected)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	for k := 0; k < 1000000; k++ {
-		Insertion(N, M, i, j)
+
+	for _, tc := range testCases {
+		result := Insertion(tc.n, tc.m, tc.i, tc.j)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: N=%b, M=%b, i=%d, j=%d -> %b (Expected: %b)\n", status, tc.n, tc.m, tc.i, tc.j, result, tc.expected)
 	}
-	
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operations: 1,000,000 Insertions\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

@@ -37,37 +37,73 @@ func printList(head *Node) string {
 
 func main() {
 	// Test Cases
-	// 1 -> 2 -> 3 -> 4 -> 5
-	node3 := &Node{Data: 3, Next: &Node{Data: 4, Next: &Node{Data: 5}}}
-	head := &Node{Data: 1, Next: &Node{Data: 2, Next: node3}}
-	
-	// Delete node 3
-	DeleteMiddleNode(node3)
-	
-	// Verify: 1 -> 2 -> 4 -> 5
-	// Check if node 2 points to 4
-	status := "FAIL"
-	if head.Next.Next.Data == 4 {
-		status = "PASS"
+	// Note: DeleteMiddleNode requires access to the node to be deleted.
+	// We'll simulate this by creating a list and picking a node.
+	type testCase struct {
+		input    []int
+		delIndex int // 0-based index of node to delete
+		expected []int
 	}
-	fmt.Printf("Test Case 1: %s\n", status)
+	testCases := []testCase{
+		{[]int{1, 2, 3, 4, 5}, 2, []int{1, 2, 4, 5}}, // Delete 3
+		{[]int{1, 2, 3}, 1, []int{1, 3}},             // Delete 2
+	}
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	// Setup dummy node to delete
-	dummy := &Node{Data: 10, Next: &Node{Data: 20}}
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	DeleteMiddleNode(dummy)
-	
+
+	for _, tc := range testCases {
+		// Create list
+		var head *Node
+		if len(tc.input) > 0 {
+			head = &Node{Data: tc.input[0]}
+			curr := head
+			var nodeToDelete *Node
+			if tc.delIndex == 0 {
+				nodeToDelete = head
+			}
+			for i := 1; i < len(tc.input); i++ {
+				newNode := &Node{Data: tc.input[i]}
+				curr.Next = newNode
+				curr = newNode
+				if i == tc.delIndex {
+					nodeToDelete = newNode
+				}
+			}
+
+			if nodeToDelete != nil {
+				DeleteMiddleNode(nodeToDelete)
+			}
+		}
+
+		// Verify
+		status := "PASS"
+		curr := head
+		i := 0
+		for curr != nil {
+			if i >= len(tc.expected) || curr.Data != tc.expected[i] {
+				status = "FAIL"
+				break
+			}
+			curr = curr.Next
+			i++
+		}
+		if i != len(tc.expected) {
+			status = "FAIL"
+		}
+
+		result := printList(head)
+		fmt.Printf("%s: %v (del index %d) -> %s (Expected: %v)\n", status, tc.input, tc.delIndex, result, tc.expected)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operation: Delete Node\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

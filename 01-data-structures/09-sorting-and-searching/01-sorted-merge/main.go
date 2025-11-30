@@ -35,49 +35,59 @@ func SortedMerge(a []int, b []int, countA int, countB int) {
 //   Memory: Low < 1KB,   Medium < 1KB,   High > 1KB
 
 func main() {
-	// A has buffer
-	a := []int{1, 3, 5, 0, 0, 0}
-	b := []int{2, 4, 6}
-	
-	SortedMerge(a, b, 3, 3)
-	
-	expected := []int{1, 2, 3, 4, 5, 6}
-	match := true
-	for i := 0; i < 6; i++ {
-		if a[i] != expected[i] {
-			match = false
-			break
-		}
+	// Test Cases
+	type testCase struct {
+		name     string
+		setup    func() ([]int, []int, int, int)
+		expected []int
 	}
-	
-	status := "FAIL"
-	if match {
-		status = "PASS"
+
+	testCases := []testCase{
+		{
+			"Merge with Buffer",
+			func() ([]int, []int, int, int) {
+				a := []int{1, 3, 5, 0, 0, 0}
+				b := []int{2, 4, 6}
+				return a, b, 3, 3
+			},
+			[]int{1, 2, 3, 4, 5, 6},
+		},
 	}
-	fmt.Printf("Test Case 1: %s (Result: %v)\n", status, a)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	// Create large arrays
-	count := 1000
-	largeA := make([]int, count*2)
-	largeB := make([]int, count)
-	for i := 0; i < count; i++ {
-		largeA[i] = i * 2
-		largeB[i] = i*2 + 1
-	}
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	SortedMerge(largeA, largeB, count, count)
-	
+
+	for _, tc := range testCases {
+		a, b, countA, countB := tc.setup()
+		SortedMerge(a, b, countA, countB)
+		
+		status := "FAIL"
+		match := true
+		if len(a) != len(tc.expected) {
+			match = false
+		} else {
+			for i := range a {
+				if a[i] != tc.expected[i] {
+					match = false
+					break
+				}
+			}
+		}
+		
+		if match {
+			status = "PASS"
+		}
+		fmt.Printf("%s: '%s' -> '%v' (Expected: '%v')\n", status, tc.name, a, tc.expected)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Merge Size: 1000 + 1000\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

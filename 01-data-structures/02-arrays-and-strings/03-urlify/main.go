@@ -40,6 +40,11 @@ func main() {
 		{"   ", 1, "%20"},
 	}
 
+	// Profiling
+	fmt.Println("\n--- Profiling ---")
+	var m1, m2 runtime.MemStats
+	runtime.ReadMemStats(&m1)
+	start := time.Now()
 	for _, tc := range testCases {
 		// Convert string to rune slice for in-place modification simulation if needed
 		// But for Go strings are immutable, so we usually return a new string
@@ -65,7 +70,7 @@ func main() {
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
 	
-	fmt.Printf("Input Length: %d\n", len(largeInput))
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

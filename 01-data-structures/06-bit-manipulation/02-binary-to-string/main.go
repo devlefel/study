@@ -25,35 +25,36 @@ func BinaryToString(num float64) string {
 
 func main() {
 	// Test Cases
-	// 0.75 -> "0.11"
-	// 0.625 -> "0.101"
-	// 0.72 -> "ERROR" (cannot be represented accurately in 32 bits)
-	
-	res1 := BinaryToString(0.75)
-	res2 := BinaryToString(0.625)
-	res3 := BinaryToString(0.72)
-	
-	status := "FAIL"
-	if res1 == "0.11" && res2 == "0.101" && res3 == "ERROR" {
-		status = "PASS"
+	testCases := []struct {
+		input    float64
+		expected string
+	}{
+		{0.75, "0.11"},
+		{0.625, "0.101"},
+		{0.72, "ERROR"},
 	}
-	fmt.Printf("Test Case 1: %s (0.75->%s, 0.625->%s, 0.72->%s)\n", status, res1, res2, res3)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	for k := 0; k < 100000; k++ {
-		BinaryToString(0.125)
+
+	for _, tc := range testCases {
+		result := BinaryToString(tc.input)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: %v -> '%s' (Expected: '%s')\n", status, tc.input, result, tc.expected)
 	}
-	
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operations: 100,000 Conversions\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

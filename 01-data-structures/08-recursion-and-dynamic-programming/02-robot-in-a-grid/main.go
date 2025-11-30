@@ -28,43 +28,54 @@ func RobotInAGrid(maze [][]bool) []Point {
 //   Memory: Low < 1KB,   Medium < 10KB,   High > 100KB
 
 func main() {
-	// 3x3 Grid
-	// F F F
-	// F T F  (Obstacle at 1,1)
-	// F F F
-	maze := [][]bool{
-		{false, false, false},
-		{false, true, false},
-		{false, false, false},
+	// Test Cases
+	type testCase struct {
+		name     string
+		setup    func() [][]bool
+		verifier func([]Point) bool
 	}
-	
-	path := RobotInAGrid(maze)
-	
-	status := "FAIL"
-	if path != nil && len(path) > 0 && path[0] == (Point{0, 0}) && path[len(path)-1] == (Point{2, 2}) {
-		status = "PASS"
+
+	testCases := []testCase{
+		{
+			"3x3 Grid with Obstacle",
+			func() [][]bool {
+				return [][]bool{
+					{false, false, false},
+					{false, true, false},
+					{false, false, false},
+				}
+			},
+			func(path []Point) bool {
+				if path != nil && len(path) > 0 && path[0] == (Point{0, 0}) && path[len(path)-1] == (Point{2, 2}) {
+					return true
+				}
+				return false
+			},
+		},
 	}
-	fmt.Printf("Test Case 1: %s (Path Length: %d)\n", status, len(path))
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	// Create 100x100 grid
-	largeMaze := make([][]bool, 100)
-	for i := range largeMaze {
-		largeMaze[i] = make([]bool, 100)
-	}
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	RobotInAGrid(largeMaze)
-	
+
+	for _, tc := range testCases {
+		maze := tc.setup()
+		path := RobotInAGrid(maze)
+		
+		status := "FAIL"
+		if tc.verifier(path) {
+			status = "PASS"
+		}
+		fmt.Printf("%s: '%s' -> Path Length %d\n", status, tc.name, len(path))
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Grid: 100x100\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

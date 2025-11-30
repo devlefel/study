@@ -25,7 +25,8 @@ func TripleStep(n int) int {
 //   Memory: Low < 1KB,   Medium < 10KB,   High > 100KB
 
 func main() {
-	tests := []struct {
+	// Test Cases
+	testCases := []struct {
 		input    int
 		expected int
 	}{
@@ -35,29 +36,27 @@ func main() {
 		{4, 7}, // 1+3, 3+1, 2+2, 2+1+1, 1+2+1, 1+1+2, 1+1+1+1
 	}
 
-	for _, test := range tests {
-		result := TripleStep(test.input)
-		if result == test.expected {
-			fmt.Printf("PASS: TripleStep(%d) = %d\n", test.input, result)
-		} else {
-			fmt.Printf("FAIL: TripleStep(%d) = %d, expected %d\n", test.input, result, test.expected)
-		}
-	}
-
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	// Calculate for N=30
-	TripleStep(30)
-	
+
+	for _, tc := range testCases {
+		result := TripleStep(tc.input)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: %d -> %d (Expected: %d)\n", status, tc.input, result, tc.expected)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operation: TripleStep(30)\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

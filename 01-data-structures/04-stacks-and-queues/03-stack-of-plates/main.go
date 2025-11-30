@@ -40,48 +40,60 @@ func (s *SetOfStacks) Pop() int {
 
 func main() {
 	// Test Cases
-	// Capacity 2
-	set := NewSetOfStacks(2)
-	
-	set.Push(1)
-	set.Push(2)
-	set.Push(3) // Should start new stack
-	set.Push(4)
-	set.Push(5) // Should start 3rd stack
-	
-	// Pop should return 5
-	val1 := set.Pop()
-	// Pop should return 4
-	val2 := set.Pop()
-	// Pop should return 3 (from 2nd stack)
-	val3 := set.Pop()
-	
-	status := "FAIL"
-	if val1 == 5 && val2 == 4 && val3 == 3 {
-		status = "PASS"
+	type testCase struct {
+		name     string
+		ops      func() []int
+		expected []int
 	}
-	fmt.Printf("Test Case 1: %s (Got %d, %d, %d)\n", status, val1, val2, val3)
+
+	testCases := []testCase{
+		{
+			"SetOfStacks Capacity 2",
+			func() []int {
+				set := NewSetOfStacks(2)
+				set.Push(1)
+				set.Push(2)
+				set.Push(3)
+				set.Push(4)
+				set.Push(5)
+				val1 := set.Pop()
+				val2 := set.Pop()
+				val3 := set.Pop()
+				return []int{val1, val2, val3}
+			},
+			[]int{5, 4, 3},
+		},
+	}
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	largeSet := NewSetOfStacks(10) // Small capacity to force many stacks
-	
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	for i := 0; i < 1000; i++ {
-		largeSet.Push(i)
+
+	for _, tc := range testCases {
+		result := tc.ops()
+		status := "FAIL"
+		if len(result) == len(tc.expected) {
+			match := true
+			for i := range result {
+				if result[i] != tc.expected[i] {
+					match = false
+					break
+				}
+			}
+			if match {
+				status = "PASS"
+			}
+		}
+		fmt.Printf("%s: '%s' -> '%v' (Expected: '%v')\n", status, tc.name, result, tc.expected)
 	}
-	for i := 0; i < 1000; i++ {
-		largeSet.Pop()
-	}
-	
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("Operations: 1000 Push + 1000 Pop\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

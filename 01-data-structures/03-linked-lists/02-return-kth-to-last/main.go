@@ -40,18 +40,15 @@ func createList(nums []int) *Node {
 
 func main() {
 	// Test Cases
-	// 1 -> 2 -> 3 -> 4 -> 5
-	head := &Node{Data: 1, Next: &Node{Data: 2, Next: &Node{Data: 3, Next: &Node{Data: 4, Next: &Node{Data: 5}}}}}
-
-	// K=2, expected 4
-	result := ReturnKthToLast(head, 2)
-	status := "FAIL"
-	// The original ReturnKthToLast returns an int, so we compare directly.
-	// If ReturnKthToLast were to return a *Node, the check would be `result != nil && result.Data == 4`.
-	if result == 4 {
-		status = "PASS"
+	testCases := []struct {
+		input    []int
+		k        int
+		expected int
+	}{
+		{[]int{1, 2, 3, 4, 5}, 2, 4},
+		{[]int{1, 2, 3}, 1, 3},
+		{[]int{1, 2, 3}, 3, 1},
 	}
-	fmt.Printf("Test Case 1 (K=2): %s (Result: %d, Expected: 4)\n", status, result)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
@@ -66,13 +63,22 @@ func main() {
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
 
-	ReturnKthToLast(largeHead, 500) // Call the function to profile
+	for _, tc := range testCases {
+		head := createList(tc.input)
+		result := ReturnKthToLast(head, tc.k)
+		
+		status := "FAIL"
+		if result == tc.expected {
+			status = "PASS"
+		}
+		fmt.Printf("%s: %v (k=%d) -> %d (Expected: %d)\n", status, tc.input, tc.k, result, tc.expected)
+	}
 
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
 
-	fmt.Printf("List Length: 1000\n")
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }

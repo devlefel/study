@@ -53,50 +53,50 @@ func createList(nums []int) *Node {
 
 func main() {
 	// Test Cases
-	// 1 -> 2 -> 1 -> 3
-	head := &Node{Data: 1, Next: &Node{Data: 2, Next: &Node{Data: 1, Next: &Node{Data: 3}}}}
-	
-	RemoveDups(head)
-	
-	// Verify
-	current := head
-	expected := []int{1, 2, 3}
-	i := 0
-	status := "PASS"
-	for current != nil {
-		if i >= len(expected) || current.Data != expected[i] {
-			status = "FAIL"
-			break
-		}
-		current = current.Next
-		i++
+	testCases := []struct {
+		input    []int
+		expected []int
+	}{
+		{[]int{1, 2, 1, 3}, []int{1, 2, 3}},
+		{[]int{1, 1, 1}, []int{1}},
+		{[]int{1, 2, 3}, []int{1, 2, 3}},
 	}
-	if i != len(expected) {
-		status = "FAIL"
-	}
-	fmt.Printf("Test Case 1: %s\n", status)
 
 	// Profiling
 	fmt.Println("\n--- Profiling ---")
-	// Create large list with dups
-	largeHead := &Node{Data: 0}
-	curr := largeHead
-	for i := 0; i < 1000; i++ {
-		curr.Next = &Node{Data: i % 10} // Many duplicates
-		curr = curr.Next
-	}
-
 	var m1, m2 runtime.MemStats
 	runtime.ReadMemStats(&m1)
 	start := time.Now()
-	
-	RemoveDups(largeHead)
-	
+
+	for _, tc := range testCases {
+		head := createList(tc.input)
+		RemoveDups(head)
+
+		// Verify
+		current := head
+		status := "PASS"
+		i := 0
+		for current != nil {
+			if i >= len(tc.expected) || current.Data != tc.expected[i] {
+				status = "FAIL"
+				break
+			}
+			current = current.Next
+			i++
+		}
+		if i != len(tc.expected) {
+			status = "FAIL"
+		}
+
+		result := printList(head)
+		fmt.Printf("%s: %v -> %s (Expected: %v)\n", status, tc.input, result, tc.expected)
+	}
+
 	duration := time.Since(start)
 	runtime.ReadMemStats(&m2)
 	memUsage := m2.TotalAlloc - m1.TotalAlloc
-	
-	fmt.Printf("List Length: 1000\n")
+
+	fmt.Printf("Input Length: %d\n", len(testCases))
 	fmt.Printf("Execution Time: %v\n", duration)
 	fmt.Printf("Memory Usage: %d bytes\n", memUsage)
 }
